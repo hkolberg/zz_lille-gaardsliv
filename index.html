@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="theme-color" content="#1d2918">
-  <title>Lille Gårdsliv v1.0 – Grafikktest</title>
+  <title>Lille Gårdsliv v1.1 – Bevegelse og kollisjon</title>
   <style>
     *{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#162014;touch-action:none;font-family:Georgia,serif}canvas{display:block;width:100%;height:100%;image-rendering:pixelated}.wood{position:fixed;z-index:5;color:#fff0bd;background:linear-gradient(#674522,#302010);border:3px ridge #d0a45e;box-shadow:0 3px 13px #000b,inset 0 0 0 1px #2a180c;border-radius:3px;text-shadow:1px 1px #201208}.brand{left:8px;top:max(7px,env(safe-area-inset-top));padding:8px 12px;font-weight:bold}.tag{left:159px;top:max(7px,env(safe-area-inset-top));padding:7px 10px;color:#ffe176;font:bold 13px Georgia}.resources{left:50%;top:max(7px,env(safe-area-inset-top));transform:translateX(-50%);padding:8px 14px;font-weight:bold;white-space:nowrap}.profile{right:8px;top:max(7px,env(safe-area-inset-top));padding:7px 10px;font:bold 13px Georgia;cursor:pointer}.info{left:112px;bottom:max(10px,env(safe-area-inset-bottom));padding:8px 11px;max-width:310px}.info b{display:block;color:#ffe29a;font-size:14px}.info span{font:12px -apple-system,sans-serif;color:#e1cfaa}.version{position:fixed;z-index:4;right:10px;bottom:70px;color:#fff9;font:11px -apple-system,sans-serif}#stick{position:fixed;z-index:8;left:10px;bottom:max(10px,env(safe-area-inset-bottom));width:90px;height:90px;border-radius:50%;background:#25180ec7;border:3px ridge #c89a55;box-shadow:0 3px 12px #000a;touch-action:none}#knob{position:absolute;left:26px;top:26px;width:34px;height:34px;border-radius:50%;background:#d7b66e;border:3px outset #f1d694;box-shadow:0 2px 5px #0009}.actions{position:fixed;z-index:8;right:9px;bottom:max(10px,env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:7px;align-items:flex-end}.actions button{min-width:145px;min-height:45px;padding:8px 13px;color:#fff2c8;background:linear-gradient(#5c833e,#35532a);border:3px outset #d1a15c;border-radius:3px;font:bold 14px Georgia;box-shadow:0 3px 10px #0009;text-align:left}.loading{position:fixed;z-index:30;inset:0;display:flex;align-items:center;justify-content:center;background:#172315;color:#ffe6aa;font:bold 18px Georgia}.loading.hidden{display:none}.modal{display:none;position:fixed;z-index:20;inset:0;align-items:center;justify-content:center;padding:18px;background:#081007d5}.modal.open{display:flex}.card{width:min(410px,100%);color:#f8e9bd;background:linear-gradient(#654421,#2d1c0e);border:4px ridge #d0a45e;padding:20px;box-shadow:0 12px 35px #000;border-radius:4px}.card h2{margin:0 0 5px;color:#ffe096}.card p{font:13px -apple-system,sans-serif;color:#d9c69c}.card label{display:block;margin:14px 0 6px;font-weight:bold}.card input{width:100%;padding:10px;font:16px -apple-system,sans-serif;background:#fff2cf;border:2px inset #b98a4d;color:#2d1b0f}.swatches{display:flex;gap:10px;flex-wrap:wrap}.swatch{width:38px;height:38px;border-radius:50%;border:3px solid #ead7a6}.swatch.chosen{outline:3px solid #fff;outline-offset:2px}.cardActions{display:flex;gap:9px;justify-content:flex-end;margin-top:20px}.cardActions button{padding:10px 16px;color:#fff0c5;background:#765132;border:2px outset #d1a15c;font:bold 14px Georgia}.cardActions .save{background:#476d36}@media(max-width:700px){.brand{font-size:12px}.tag{left:139px;font-size:11px}.resources{top:max(49px,calc(env(safe-area-inset-top) + 47px));font-size:12px}.profile{font-size:0}.profile span{font-size:16px}.info{display:none}.version{bottom:65px}}
   </style>
@@ -13,16 +13,16 @@
 <body>
   <canvas id="game"></canvas>
   <div class="wood brand">Lille Gårdsliv</div>
-  <div class="wood tag">V1.0 · GRAFIKKTEST</div>
+  <div class="wood tag">V1.1 · LEVENDE FIGURER</div>
   <div class="wood resources">🪙 <span id="coins">1 240</span> &nbsp; 🥚 <span id="eggs">0</span> &nbsp; 🌾 <span id="grain">0</span></div>
   <button class="wood profile" id="openProfile"><span>👤</span> <i id="hudName">Gårdbrukeren</i></button>
   <div class="wood info"><b id="place">Rønningsberg gård</b><span id="desc">Dra og zoom fritt · beveg figuren for å sentrere</span></div>
   <div id="stick" aria-label="Styrespak"><div id="knob"></div></div>
   <div class="actions" id="contextActions"></div>
-  <div class="version">Visuell vertikalskive · ingen nye spillfunksjoner</div>
+  <div class="version">Animerte retninger · kollisjon med bygg og gjerder</div>
   <div class="loading" id="loading">Laster den nye landsbyen …</div>
   <div class="modal" id="profileModal"><div class="card"><h2>Spillerprofil</h2><p>Navn og diamantfarge lagres på denne enheten.</p><label for="playerName">Navn</label><input id="playerName" maxlength="24" autocomplete="off"><label>Diamantfarge</label><div class="swatches" id="swatches"></div><div class="cardActions"><button id="cancelProfile">Avbryt</button><button class="save" id="saveProfile">Lagre</button></div></div></div>
-  <script>
+  <script type="text/plain" id="legacy-v1">
     const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),place=document.getElementById('place'),desc=document.getElementById('desc');
     let W=innerWidth,H=innerHeight,D=Math.min(devicePixelRatio||1,2),last=0,moved=false,pinch=0,stickId=null;
     const camera={x:650,y:520,zoom:1},player={x:650,y:520,mode:'walk'},tractor={x:825,y:455},trailer={x:925,y:485,attached:false},move={x:0,y:0},touches=new Map(),keys={};
@@ -45,6 +45,75 @@
     canvas.onpointerdown=e=>{canvas.setPointerCapture(e.pointerId);touches.set(e.pointerId,{x:e.clientX,y:e.clientY});moved=false};canvas.onpointermove=e=>{if(!touches.has(e.pointerId))return;let old=touches.get(e.pointerId);touches.set(e.pointerId,{x:e.clientX,y:e.clientY});let p=[...touches.values()];if(p.length===1){let dx=e.clientX-old.x,dy=e.clientY-old.y;camera.x-=dx/camera.zoom;camera.y-=dy/camera.zoom;if(Math.abs(dx)+Math.abs(dy)>3)moved=true}else{let d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(pinch)camera.zoom=Math.max(.45,Math.min(2.5,camera.zoom*d/pinch));pinch=d;moved=true}};function release(e){touches.delete(e.pointerId);pinch=0}canvas.onpointerup=release;canvas.onpointercancel=release;canvas.onwheel=e=>{camera.zoom=Math.max(.45,Math.min(2.5,camera.zoom*(e.deltaY>0?.9:1.1)));e.preventDefault()};
     addEventListener('keydown',e=>{if(e.target.matches('input'))return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(e.key)){keys[e.key]=true;e.preventDefault()}});addEventListener('keyup',e=>{keys[e.key]=false});
     const modal=document.getElementById('profileModal'),nameInput=document.getElementById('playerName'),swatches=document.getElementById('swatches'),hudName=document.getElementById('hudName');let chosen=profile.diamond;colors.forEach(c=>{let b=document.createElement('button');b.className='swatch';b.style.background=c;b.onclick=()=>{chosen=c;document.querySelectorAll('.swatch').forEach(x=>x.classList.toggle('chosen',x===b))};swatches.appendChild(b)});function openProfile(){nameInput.value=profile.name;chosen=profile.diamond;document.querySelectorAll('.swatch').forEach((x,i)=>x.classList.toggle('chosen',colors[i]===chosen));modal.classList.add('open');setTimeout(()=>nameInput.focus(),50)}function closeProfile(){modal.classList.remove('open')}document.getElementById('openProfile').onclick=openProfile;document.getElementById('cancelProfile').onclick=closeProfile;document.getElementById('saveProfile').onclick=()=>{profile={name:nameInput.value.trim()||'Gårdbrukeren',diamond:chosen};try{localStorage.setItem('lilleGaardslivProfile',JSON.stringify(profile))}catch(e){}hudName.textContent=profile.name;place.textContent=profile.name;closeProfile()};modal.onclick=e=>{if(e.target===modal)closeProfile()};
+    hudName.textContent=profile.name;document.getElementById('coins').textContent=gameState.coins.toLocaleString('nb-NO');document.getElementById('eggs').textContent=gameState.eggs||0;document.getElementById('grain').textContent=gameState.grain||0;
+    Promise.all(Object.entries(sources).map(([k,u])=>loadImage(k,u))).then(()=>{document.getElementById('loading').classList.add('hidden');center();requestAnimationFrame(update)}).catch(()=>{document.getElementById('loading').textContent='Kunne ikke laste grafikken. Prøv å åpne siden på nytt.'});
+  </script>
+  <script>
+    const canvas=document.getElementById('game'),ctx=canvas.getContext('2d'),place=document.getElementById('place'),desc=document.getElementById('desc');
+    let W=innerWidth,H=innerHeight,D=Math.min(devicePixelRatio||1,2),last=0,pinch=0,stickId=null,anim=0,blockedAt=0;
+    const camera={x:690,y:625,zoom:1},player={x:690,y:625,mode:'walk',dir:0,vx:0,vy:0},tractor={x:840,y:535,dir:0},trailer={x:950,y:555,dir:0,attached:false},move={x:0,y:0},touches=new Map(),keys={},trailPath=[];
+    const colors=['#49d8ff','#ffe04b','#ff5d69','#8bff66','#c98cff','#ff963e'];
+    let profile={name:'Gårdbrukeren',diamond:'#49d8ff'},gameState={coins:1240,eggs:0,grain:0};
+    try{profile={...profile,...JSON.parse(localStorage.getItem('lilleGaardslivProfile')||'{}')};gameState={...gameState,...JSON.parse(localStorage.getItem('lilleGaardslivGame')||'{}')}}catch(e){}
+    const sources={map:'assets/v1/village-map.webp',farmer:'assets/v1.1/farmer-directions.png',tractor:'assets/v1.1/tractor-directions.png',trailer:'assets/v1.1/trailer-directions.png'},images={};
+    const buildings=[
+      {x:270,y:305,w:355,h:205},{x:765,y:305,w:315,h:210},{x:710,y:100,w:190,h:225},
+      {x:765,y:625,w:180,h:155},{x:1080,y:410,w:175,h:150},{x:1320,y:400,w:180,h:170},
+      {x:1390,y:300,w:146,h:250},{x:145,y:675,w:225,h:155}
+    ];
+    const circles=[{x:681,y:548,r:54},{x:1262,y:535,r:43}];
+    const fences=[
+      [900,82,1360,76],[1360,76,1515,185],[1510,220,1250,404],[1250,404,1155,365],[1105,347,875,294],[875,294,900,82],
+      [250,406,555,340],[620,360,735,420],[735,420,735,605],[735,605,570,675],[525,672,258,560],[258,560,250,406],
+      [720,590,955,610],[1010,635,1055,680],[1055,680,1000,795],[1000,795,800,805],[745,770,720,590],
+      [0,440,230,505],[280,530,548,650],[548,650,455,765],[410,790,190,850],[150,850,0,785],
+      [960,565,1180,665],[1215,685,1320,735],[1355,748,1536,680],
+      [1380,590,1536,530]
+    ];
+    function loadImage(key,url){return new Promise((resolve,reject)=>{let im=new Image;im.onload=()=>{images[key]=im;resolve()};im.onerror=reject;im.src=url})}
+    function resize(){W=innerWidth;H=innerHeight;D=Math.min(devicePixelRatio||1,2);canvas.width=W*D;canvas.height=H*D;ctx.imageSmoothingEnabled=false}addEventListener('resize',resize);resize();
+    function center(){camera.x=player.x;camera.y=player.y}
+    function shadow(x,y,w){ctx.fillStyle='#15200f70';ctx.beginPath();ctx.ellipse(x,y-2,w,Math.max(4,w*.27),0,0,Math.PI*2);ctx.fill()}
+    function sheet(im,row,frame,x,y,w){const cw=im.width/3,ch=im.height/4,h=w*ch/cw;ctx.drawImage(im,frame*cw,row*ch,cw,ch,Math.round(x-w/2),Math.round(y-h),Math.round(w),Math.round(h));return h}
+    function diamond(x,y,color,offset){const bob=Math.sin(anim*2.5)*2;ctx.beginPath();ctx.moveTo(x,y-offset-24+bob);ctx.lineTo(x+10,y-offset-14+bob);ctx.lineTo(x,y-offset-4+bob);ctx.lineTo(x-10,y-offset-14+bob);ctx.closePath();ctx.fillStyle=color;ctx.fill();ctx.strokeStyle='#fff4c9';ctx.lineWidth=2;ctx.stroke()}
+    function directionFor(x,y,old){if(Math.hypot(x,y)<.5)return old;if(y>=0)return x>=0?0:1;return x<0?2:3}
+    function render(){
+      ctx.setTransform(D,0,0,D,0,0);ctx.fillStyle='#152014';ctx.fillRect(0,0,W,H);ctx.save();ctx.translate(W/2,H/2);ctx.scale(camera.zoom,camera.zoom);ctx.translate(-camera.x,-camera.y);ctx.drawImage(images.map,0,0,1536,1024);
+      const moving=Math.hypot(player.vx,player.vy)>8,frame=moving?Math.floor(anim*7)%3:1,objects=[];
+      if(player.mode!=='tractor')objects.push({y:tractor.y,draw:()=>{shadow(tractor.x,tractor.y,37);sheet(images.tractor,tractor.dir,1,tractor.x,tractor.y,130)}});
+      objects.push({y:trailer.y,draw:()=>{shadow(trailer.x,trailer.y,31);sheet(images.trailer,trailer.dir,trailer.attached?frame:1,trailer.x,trailer.y,116)}});
+      objects.push({y:player.y+.1,draw:()=>{if(player.mode==='tractor'){shadow(player.x,player.y,37);const h=sheet(images.tractor,player.dir,frame,player.x,player.y,130);diamond(player.x,player.y,profile.diamond,h)}else{shadow(player.x,player.y,11);const h=sheet(images.farmer,player.dir,frame,player.x,player.y,72);diamond(player.x,player.y,profile.diamond,h)}}});
+      objects.sort((a,b)=>a.y-b.y).forEach(o=>o.draw());ctx.restore();
+    }
+    function pointSegment(px,py,x1,y1,x2,y2){const dx=x2-x1,dy=y2-y1,l=dx*dx+dy*dy,t=l?Math.max(0,Math.min(1,((px-x1)*dx+(py-y1)*dy)/l)):0;return Math.hypot(px-(x1+t*dx),py-(y1+t*dy))}
+    function canStand(x,y,r){
+      if(x<25+r||x>1511-r||y<35+r||y>995-r)return false;
+      for(const b of buildings){const qx=Math.max(b.x,Math.min(x,b.x+b.w)),qy=Math.max(b.y,Math.min(y,b.y+b.h));if(Math.hypot(x-qx,y-qy)<r)return false}
+      for(const c of circles)if(Math.hypot(x-c.x,y-c.y)<r+c.r)return false;
+      for(const f of fences)if(pointSegment(x,y,...f)<r+4)return false;
+      return true;
+    }
+    function movePlayer(dx,dy){const r=player.mode==='tractor'?27:10,ox=player.x,oy=player.y;let nx=player.x+dx,ny=player.y;if(canStand(nx,ny,r))player.x=nx;else player.vx=0;nx=player.x;ny=player.y+dy;if(canStand(nx,ny,r))player.y=ny;else player.vy=0;if(player.x===ox&&player.y===oy&&Math.abs(dx)+Math.abs(dy)>0&&performance.now()-blockedAt>650){blockedAt=performance.now();desc.textContent=player.mode==='tractor'?'Traktoren kommer ikke forbi her':'Her er veien sperret'}return player.x!==ox||player.y!==oy}
+    function distance(a,b){return Math.hypot(player.x-a,player.y-b)}
+    function updateActions(){let list=[];if(player.mode==='walk'&&distance(tractor.x,tractor.y)<108)list.push(['enter','🚜 Kjør traktoren']);if(player.mode==='tractor'){list.push(['exit','🚶 Gå ut av traktoren']);if(!trailer.attached&&distance(trailer.x,trailer.y)<125)list.push(['attach','🔗 Koble til tilhenger']);if(trailer.attached)list.push(['detach','⛓️ Koble fra tilhenger'])}const box=document.getElementById('contextActions'),sig=list.map(x=>x[0]).join('|');if(box.dataset.sig!==sig){box.dataset.sig=sig;box.innerHTML='';list.forEach(([id,text])=>{const b=document.createElement('button');b.textContent=text;b.onclick=()=>act(id);box.appendChild(b)})}}
+    function safeExit(){for(const [dx,dy] of [[48,20],[-48,20],[0,55],[0,-55]])if(canStand(player.x+dx,player.y+dy,10))return [player.x+dx,player.y+dy];return [player.x,player.y]}
+    function act(id){
+      if(id==='enter'){player.mode='tractor';player.x=tractor.x;player.y=tractor.y;player.dir=tractor.dir;player.vx=player.vy=0;place.textContent=profile.name;desc.textContent='Du kjører traktoren'}
+      if(id==='exit'){tractor.x=player.x;tractor.y=player.y;tractor.dir=player.dir;const p=safeExit();player.mode='walk';player.x=p[0];player.y=p[1];player.vx=player.vy=0;place.textContent=profile.name;desc.textContent='Traktoren er parkert'}
+      if(id==='attach'){trailer.attached=true;trailPath.length=0;for(let i=0;i<18;i++)trailPath.push({x:player.x-(i+1)*5,y:player.y+(i+1)*2,dir:player.dir});desc.textContent='Tilhengeren følger traktorsporet'}
+      if(id==='detach'){trailer.attached=false;trailPath.length=0;desc.textContent='Tilhengeren er parkert'}center();updateActions()
+    }
+    function followTrailer(){if(!trailer.attached)return;trailPath.unshift({x:player.x,y:player.y,dir:player.dir});let travelled=0,pick=trailPath[trailPath.length-1];for(let i=1;i<trailPath.length;i++){travelled+=Math.hypot(trailPath[i].x-trailPath[i-1].x,trailPath[i].y-trailPath[i-1].y);if(travelled>=88){pick=trailPath[i];trailPath.length=Math.min(trailPath.length,i+20);break}}trailer.x=pick.x;trailer.y=pick.y;trailer.dir=pick.dir;if(trailPath.length>90)trailPath.length=90}
+    function update(t){
+      const dt=Math.min((t-last||16)/1000,.05);last=t;anim+=dt;let x=move.x+(keys.ArrowRight||keys.d?1:0)-(keys.ArrowLeft||keys.a?1:0),y=move.y+(keys.ArrowDown||keys.s?1:0)-(keys.ArrowUp||keys.w?1:0),m=Math.hypot(x,y);if(m>1){x/=m;y/=m}
+      const top=player.mode==='tractor'?180:105,quick=player.mode==='tractor'?4.5:10,targetX=x*top,targetY=y*top,k=Math.min(1,dt*quick);player.vx+=(targetX-player.vx)*k;player.vy+=(targetY-player.vy)*k;if(m<.05&&Math.hypot(player.vx,player.vy)<2)player.vx=player.vy=0;
+      const moved=movePlayer(player.vx*dt,player.vy*dt);if(moved){player.dir=directionFor(player.vx,player.vy,player.dir);if(player.mode==='tractor'){tractor.x=player.x;tractor.y=player.y;tractor.dir=player.dir;followTrailer()}center()}
+      updateActions();render();requestAnimationFrame(update)
+    }
+    const stick=document.getElementById('stick'),knob=document.getElementById('knob');function steer(e){const r=stick.getBoundingClientRect();let x=e.clientX-r.left-r.width/2,y=e.clientY-r.top-r.height/2,l=28,m=Math.hypot(x,y);if(m>l){x=x/m*l;y=y/m*l}knob.style.transform=`translate(${x}px,${y}px)`;move.x=x/l;move.y=y/l}stick.onpointerdown=e=>{stickId=e.pointerId;stick.setPointerCapture(e.pointerId);steer(e)};stick.onpointermove=e=>{if(e.pointerId===stickId)steer(e)};function stopStick(e){if(e.pointerId!==stickId)return;stickId=null;move.x=move.y=0;knob.style.transform='translate(0,0)'}stick.onpointerup=stopStick;stick.onpointercancel=stopStick;
+    canvas.onpointerdown=e=>{canvas.setPointerCapture(e.pointerId);touches.set(e.pointerId,{x:e.clientX,y:e.clientY})};canvas.onpointermove=e=>{if(!touches.has(e.pointerId))return;const old=touches.get(e.pointerId);touches.set(e.pointerId,{x:e.clientX,y:e.clientY});const p=[...touches.values()];if(p.length===1){camera.x-=(e.clientX-old.x)/camera.zoom;camera.y-=(e.clientY-old.y)/camera.zoom}else{const d=Math.hypot(p[0].x-p[1].x,p[0].y-p[1].y);if(pinch)camera.zoom=Math.max(.45,Math.min(2.5,camera.zoom*d/pinch));pinch=d}};function release(e){touches.delete(e.pointerId);pinch=0}canvas.onpointerup=release;canvas.onpointercancel=release;canvas.onwheel=e=>{camera.zoom=Math.max(.45,Math.min(2.5,camera.zoom*(e.deltaY>0?.9:1.1)));e.preventDefault()};
+    addEventListener('keydown',e=>{if(e.target.matches('input'))return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight','w','a','s','d'].includes(e.key)){keys[e.key]=true;e.preventDefault()}});addEventListener('keyup',e=>{keys[e.key]=false});
+    const modal=document.getElementById('profileModal'),nameInput=document.getElementById('playerName'),swatches=document.getElementById('swatches'),hudName=document.getElementById('hudName');let chosen=profile.diamond;colors.forEach(c=>{const b=document.createElement('button');b.className='swatch';b.style.background=c;b.onclick=()=>{chosen=c;document.querySelectorAll('.swatch').forEach(q=>q.classList.toggle('chosen',q===b))};swatches.appendChild(b)});function openProfile(){nameInput.value=profile.name;chosen=profile.diamond;document.querySelectorAll('.swatch').forEach((q,i)=>q.classList.toggle('chosen',colors[i]===chosen));modal.classList.add('open');setTimeout(()=>nameInput.focus(),50)}function closeProfile(){modal.classList.remove('open')}document.getElementById('openProfile').onclick=openProfile;document.getElementById('cancelProfile').onclick=closeProfile;document.getElementById('saveProfile').onclick=()=>{profile={name:nameInput.value.trim()||'Gårdbrukeren',diamond:chosen};try{localStorage.setItem('lilleGaardslivProfile',JSON.stringify(profile))}catch(e){}hudName.textContent=profile.name;place.textContent=profile.name;closeProfile()};modal.onclick=e=>{if(e.target===modal)closeProfile()};
     hudName.textContent=profile.name;document.getElementById('coins').textContent=gameState.coins.toLocaleString('nb-NO');document.getElementById('eggs').textContent=gameState.eggs||0;document.getElementById('grain').textContent=gameState.grain||0;
     Promise.all(Object.entries(sources).map(([k,u])=>loadImage(k,u))).then(()=>{document.getElementById('loading').classList.add('hidden');center();requestAnimationFrame(update)}).catch(()=>{document.getElementById('loading').textContent='Kunne ikke laste grafikken. Prøv å åpne siden på nytt.'});
   </script>

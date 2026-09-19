@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#7fb069">
-<title>Lille Gårdsliv v0.2</title>
+<title>Lille Gårdsliv v0.3</title>
 <style>
 html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#182018;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none}
 canvas{display:block;width:100%;height:100%}
@@ -36,7 +36,7 @@ button.startbtn{margin-top:12px;padding:13px 22px;border:0;border-radius:14px;ba
 </div>
 <div id="start"><div class="card">
  <h1>Lille Gårdsliv</h1>
- <p>Testversjon v0.2. Utforsk et lunere gårdslandskap med grusveier og et mer detaljert, klassisk gårdstun. Kjør traktor eller bil, så og høst korn, kos med katten, hent egg og selg varer på torget.</p>
+ <p>Testversjon v0.3. Ny visuell retning med tett vegetasjon, stein, blomster, detaljerte gårdsbygninger, jordveier og et mer levende klassisk strategispill-preg.</p>
  <input id="name" maxlength="16" placeholder="Navn på figuren">
  <br><button class="startbtn" id="play">Start dagen</button>
  <div class="small">Figurnavnet og gårdens progresjon lagres på denne enheten.</div>
@@ -124,22 +124,33 @@ function roof(rx,ry,rw,rh,col='#8d4937'){x.fillStyle=col;x.beginPath();x.moveTo(
 function timberBuilding(r,wall,roofCol,name){x.fillStyle='#6d553e';x.fillRect(r.x+5,r.y+8,r.w,r.h);x.fillStyle=wall;x.fillRect(r.x,r.y,r.w,r.h);x.strokeStyle='#684a32';x.lineWidth=7;x.strokeRect(r.x+4,r.y+4,r.w-8,r.h-8);for(let xx=r.x+38;xx<r.x+r.w;xx+=42){x.beginPath();x.moveTo(xx,r.y+5);x.lineTo(xx,r.y+r.h-5);x.stroke()}x.lineWidth=4;x.beginPath();x.moveTo(r.x+5,r.y+5);x.lineTo(r.x+r.w-5,r.y+r.h-5);x.moveTo(r.x+r.w-5,r.y+5);x.lineTo(r.x+5,r.y+r.h-5);x.stroke();roof(r.x-8,r.y-42,r.w+16,48,roofCol);x.fillStyle='#4a3022';x.fillRect(r.x+r.w*.43,r.y+r.h*.48,r.w*.18,r.h*.52);label(name,r.x+r.w/2,r.y+r.h+24,16)}
 function barnBuilding(r){x.fillStyle='#a44f3f';x.fillRect(r.x,r.y,r.w,r.h);x.strokeStyle='#74392f';x.lineWidth=6;x.strokeRect(r.x+4,r.y+4,r.w-8,r.h-8);roof(r.x-10,r.y-50,r.w+20,56,'#754033');x.fillStyle='#59392a';x.fillRect(r.x+r.w*.34,r.y+r.h*.28,r.w*.32,r.h*.72);x.strokeStyle='#d3b37d';x.lineWidth=5;x.beginPath();x.moveTo(r.x+r.w*.34,r.y+r.h*.28);x.lineTo(r.x+r.w*.66,r.y+r.h);x.moveTo(r.x+r.w*.66,r.y+r.h*.28);x.lineTo(r.x+r.w*.34,r.y+r.h);x.stroke();label('LÅVE',r.x+r.w/2,r.y+r.h+24,16)}
 function worldDraw(){
- x.fillStyle='#82ad68';x.fillRect(0,0,WORLD.w,WORLD.h);
- // river
- x.fillStyle='#79b9d0';x.fillRect(1370,520,115,980);
+ x.fillStyle='#76a85a';x.fillRect(0,0,WORLD.w,WORLD.h);
+ // layered meadow texture
+ for(let i=0;i<1250;i++){let gx=(i*173)%WORLD.w,gy=(i*97)%WORLD.h;x.fillStyle=i%5===0?'#d8cf6a55':i%3===0?'#3f7a3b44':'#f1e4a433';x.beginPath();x.arc(gx,gy,1+(i%3),0,7);x.fill()}
+ // flower clusters
+ for(let i=0;i<180;i++){let gx=(i*311+70)%WORLD.w,gy=(i*181+55)%WORLD.h;x.fillStyle=['#f5df55','#f4eee0','#d46b76','#7298d4'][i%4];x.beginPath();x.arc(gx,gy,2.2,0,7);x.fill()}
+ // river with rocky banks and highlights
+ x.fillStyle='#4e9fbd';x.fillRect(1370,520,115,980);
+ for(let yy=535;yy<1490;yy+=34){x.strokeStyle='#bfe8e755';x.lineWidth=3;x.beginPath();x.moveTo(1382,yy);x.quadraticCurveTo(1427,yy-10,1472,yy);x.stroke()}
+ for(let yy=535;yy<1490;yy+=55){for(let side of [1364,1488]){x.fillStyle='#74766b';x.beginPath();x.arc(side,yy,8+(yy%13),0,7);x.fill();x.fillStyle='#a7a08b';x.beginPath();x.arc(side-2,yy-3,4,0,7);x.fill()}}
  // textured gravel roads: stones, wheel tracks and soft grassy edges
  road.forEach(r=>{x.fillStyle='#6d9658';x.fillRect(r.x-9,r.y-9,r.w+18,r.h+18);drawRoad(r)});
  // fields
  drawRect(field,save.crop==='ready'?'#d9b34b':save.crop==='growing'?'#7fa83f':'#9b784c');
+ x.strokeStyle='#5f4a2d66';x.lineWidth=2;for(let xx=field.x+18;xx<field.x+field.w;xx+=22){x.beginPath();x.moveTo(xx,field.y+8);x.lineTo(xx-40,field.y+field.h-8);x.stroke()}
+ if(save.crop!=='empty'){for(let i=0;i<260;i++){let cx=field.x+12+(i*47)%(field.w-24),cy=field.y+12+(i*79)%(field.h-24);x.strokeStyle=save.crop==='ready'?'#f3d36a':'#b8cf63';x.lineWidth=2;x.beginPath();x.moveTo(cx,cy+6);x.lineTo(cx,cy-6);x.stroke()}}
  for(let yy=field.y+18;yy<field.y+field.h;yy+=28){x.strokeStyle='#ffffff22';x.beginPath();x.moveTo(field.x+10,yy);x.lineTo(field.x+field.w-10,yy);x.stroke()}
  label(save.crop==='empty'?'JORDET – klart for såing':save.crop==='growing'?'JORDET – kornet vokser':'JORDET – KORNET ER MODENT',field.x+field.w/2,field.y+field.h/2,18);
  // forest
  drawRect(forest,'#4e7e4a');
- for(let i=0;i<55;i++){let tx=forest.x+30+(i*137)%700,ty=forest.y+25+(i*83)%360;x.fillStyle='#285c36';x.beginPath();x.arc(tx,ty,18,0,7);x.fill()}
+ for(let i=0;i<95;i++){let tx=forest.x+22+(i*137)%720,ty=forest.y+20+(i*83)%385;x.fillStyle='#493c28';x.fillRect(tx-2,ty+10,5,18);x.fillStyle=i%4===0?'#477a37':i%3===0?'#2f6937':'#245b32';x.beginPath();x.arc(tx,ty,13+(i%7),0,7);x.fill();x.fillStyle='#6e9b48aa';x.beginPath();x.arc(tx-5,ty-6,7+(i%4),0,7);x.fill()}
  label('SKOG',1600,300,24);
  // classic storybook farmstead: chunky silhouettes, timber framing and steep roofs
  x.fillStyle='#739c5c';x.beginPath();x.ellipse(410,395,270,205,0,0,7);x.fill();
  timberBuilding(house,'#ead8ae','#994f3c','HJEM');
+ // farmyard props
+ for(let i=0;i<8;i++){let bx=220+i*37,by=405+(i%2)*18;x.fillStyle='#8b653d';x.fillRect(bx,by,18,13);x.strokeStyle='#5b402a';x.strokeRect(bx,by,18,13)}
+ x.fillStyle='#d9c27a';for(let i=0;i<5;i++){x.fillRect(455+i*14,395+(i%2)*9,12,12)}
  barnBuilding(barn);
  x.fillStyle='#d9bb72';x.fillRect(coop.x,coop.y,coop.w,coop.h);roof(coop.x-5,coop.y-28,coop.w+10,34,'#8d4937');x.fillStyle='#503726';x.fillRect(coop.x+38,coop.y+42,28,38);label('🐔',540,coop.y+34,23);
  timberBuilding(market,'#ead6ad','#a05b3f','TORGET 🧺');
@@ -155,7 +166,7 @@ function worldDraw(){
  let o=p.vehicle||p;x.fillStyle='#315b9b';x.beginPath();x.arc(o.x,o.y,p.vehicle?7:15,0,7);x.fill();
  if(!p.vehicle){x.fillStyle='#f0c8a0';x.beginPath();x.arc(p.x,p.y-15,9,0,7);x.fill();label(p.name,p.x,p.y-30,11)}
 }
-function drawVehicle(v,col,emoji){x.save();x.translate(v.x,v.y);x.rotate(v.a);x.fillStyle=col;x.fillRect(-25,-16,50,32);x.font='23px sans-serif';x.textAlign='center';x.fillText(emoji,0,8);x.restore()}
+function drawVehicle(v,col,emoji){x.save();x.translate(v.x,v.y);x.rotate(v.a);x.fillStyle='#2e2b25';x.fillRect(-24,-20,13,7);x.fillRect(12,-20,13,7);x.fillRect(-24,13,13,7);x.fillRect(12,13,13,7);x.fillStyle=col;x.fillRect(-25,-16,50,32);x.fillStyle='#d8c48b';x.fillRect(-6,-13,20,15);x.font='18px sans-serif';x.textAlign='center';x.fillText(emoji,0,8);x.restore()}
 function update(dt){
  let o=p.vehicle||p, sp=p.vehicle?p.vehicle.speed:p.speed;
  let m=Math.hypot(joy.dx,joy.dy);

@@ -1,195 +1,27 @@
-<!doctype html>
-<html lang="no">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#7fb069">
-<title>Lille Gårdsliv v0.3</title>
-<style>
-html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#182018;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;touch-action:none}
-canvas{display:block;width:100%;height:100%}
-#ui{position:fixed;inset:0;pointer-events:none;color:#fff}
-#top{position:absolute;top:max(10px,env(safe-area-inset-top));left:12px;right:12px;display:flex;justify-content:space-between;gap:8px}
-.pill{background:#172018d9;border:1px solid #ffffff33;border-radius:14px;padding:8px 11px;font-weight:700;font-size:13px;box-shadow:0 2px 8px #0005}
-#msg{position:absolute;top:64px;left:50%;transform:translateX(-50%);background:#172018e8;border-radius:12px;padding:8px 12px;font-size:13px;opacity:0;transition:.2s;max-width:75%;text-align:center}
-#joy{pointer-events:auto;position:absolute;left:22px;bottom:max(24px,env(safe-area-inset-bottom));width:118px;height:118px;border-radius:59px;background:#ffffff24;border:2px solid #ffffff55}
-#knob{position:absolute;left:35px;top:35px;width:48px;height:48px;border-radius:24px;background:#ffffffaa}
-#action{pointer-events:auto;position:absolute;right:22px;bottom:max(34px,env(safe-area-inset-bottom));width:92px;height:92px;border-radius:46px;border:2px solid #fff8;background:#e0a33bcc;color:white;font-size:15px;font-weight:800;box-shadow:0 3px 10px #0005}
-#vehicle{pointer-events:auto;position:absolute;right:124px;bottom:max(45px,env(safe-area-inset-bottom));width:70px;height:70px;border-radius:35px;border:2px solid #fff6;background:#4775aacc;color:white;font-size:12px;font-weight:800;display:none}
-#start{pointer-events:auto;position:fixed;inset:0;background:linear-gradient(#82b9df,#b9d991 60%,#6d9d55);display:flex;align-items:center;justify-content:center;padding:22px}
-.card{width:min(420px,90vw);background:#fffef3;color:#263226;border-radius:24px;padding:24px;box-shadow:0 16px 50px #0005;text-align:center}
-.card h1{margin:0 0 8px;font-size:30px}.card p{margin:8px 0 16px;color:#596459;line-height:1.35}
-input{font-size:18px;padding:12px;border:1px solid #aaa;border-radius:12px;width:80%;text-align:center}
-button.startbtn{margin-top:12px;padding:13px 22px;border:0;border-radius:14px;background:#497b3b;color:white;font-size:17px;font-weight:800}
-.small{font-size:12px;color:#687268;margin-top:12px}
-</style>
-</head>
-<body>
-<canvas id="game"></canvas>
-<div id="ui">
- <div id="top"><div class="pill" id="day">Dag 1 • 07:00</div><div class="pill" id="money">💰 1 000 kr</div><div class="pill" id="inv">🥚 0 • 🌾 0</div></div>
- <div id="msg"></div>
- <div id="joy"><div id="knob"></div></div>
- <button id="vehicle">GÅ UT</button>
- <button id="action">BRUK</button>
-</div>
-<div id="start"><div class="card">
- <h1>Lille Gårdsliv</h1>
- <p>Testversjon v0.3. Ny visuell retning med tett vegetasjon, stein, blomster, detaljerte gårdsbygninger, jordveier og et mer levende klassisk strategispill-preg.</p>
- <input id="name" maxlength="16" placeholder="Navn på figuren">
- <br><button class="startbtn" id="play">Start dagen</button>
- <div class="small">Figurnavnet og gårdens progresjon lagres på denne enheten.</div>
-</div></div>
+<!doctype html><html lang="no"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="theme-color" content="#382918"><title>Lille Gårdsliv v0.4 – Isometrisk grafikkdemo</title>
+<style>html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#17251b;font-family:Georgia,serif;touch-action:none}canvas{display:block;width:100%;height:100%}.hud{position:fixed;z-index:3;color:#f6e8c5;background:linear-gradient(#4a351f,#281b11);border:3px solid #8c6538;box-shadow:0 3px 12px #0008,inset 0 0 0 1px #d4a65d;border-radius:6px}.top{top:max(7px,env(safe-area-inset-top));left:50%;transform:translateX(-50%);padding:8px 16px;font-weight:bold;white-space:nowrap}.title{top:max(7px,env(safe-area-inset-top));left:8px;padding:8px 12px;font-weight:bold}.tip{bottom:max(10px,env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);padding:7px 12px;font:12px -apple-system;white-space:nowrap}.badge{position:fixed;right:8px;top:max(7px,env(safe-area-inset-top));z-index:4;background:#efe0b8;color:#392817;border:2px solid #76522d;border-radius:5px;padding:7px 10px;font:bold 12px Georgia}</style></head><body><canvas id="g"></canvas><div class="hud title">Lille Gårdsliv</div><div class="hud top">🪙 1 240 &nbsp; 🪵 86 &nbsp; 🪨 42 &nbsp; 🌾 156</div><div class="badge">☀️ År 1 · Sommer</div><div class="hud tip">Grafikkdemo v0.4 · dra for å panorere · knip for å zoome</div>
 <script>
-(()=>{
-const c=document.getElementById('game'),x=c.getContext('2d');
-let W=innerWidth,H=innerHeight,DPR=Math.min(devicePixelRatio||1,2);
-function resize(){W=innerWidth;H=innerHeight;c.width=W*DPR;c.height=H*DPR;x.setTransform(DPR,0,0,DPR,0,0)}
-addEventListener('resize',resize);resize();
-
-const WORLD={w:2200,h:1500};
-const house={x:260,y:250,w:180,h:130};
-const coop={x:490,y:260,w:100,h:80};
-const field={x:650,y:170,w:620,h:390};
-const market={x:1710,y:980,w:210,h:170};
-const shop={x:1690,y:760,w:230,h:140};
-const barn={x:260,y:450,w:210,h:130};
-const forest={x:1250,y:80,w:760,h:430};
-const road=[{x:0,y:650,w:2200,h:125},{x:1500,y:650,w:125,h:700},{x:300,y:520,w:125,h:200}];
-
-let save=JSON.parse(localStorage.getItem('farmSave')||'null')||{money:1000,eggs:0,grain:0,day:1,crop:'empty',cropDay:0,name:''};
-document.getElementById('name').value=save.name||'';
-let p={x:350,y:410,r:15,speed:180,name:'Spiller',vehicle:null};
-let tractor={x:520,y:560,a:0,type:'tractor',speed:280};
-let car={x:610,y:585,a:0,type:'car',speed:380};
-let cat={x:420,y:430,t:0};
-let started=false,startTime=0,dayLength=15*60*1000;
-let joy={active:false,id:null,dx:0,dy:0}, last=performance.now(), msgTimer=0;
-
-function persist(){save.name=p.name;localStorage.setItem('farmSave',JSON.stringify(save))}
-function say(s){let m=document.getElementById('msg');m.textContent=s;m.style.opacity=1;clearTimeout(msgTimer);msgTimer=setTimeout(()=>m.style.opacity=0,2300)}
-document.getElementById('play').onclick=()=>{
- p.name=(document.getElementById('name').value.trim()||'Spiller');save.name=p.name;persist();
- document.getElementById('start').style.display='none';started=true;startTime=performance.now();say('God morgen, '+p.name+'!');
-};
-
-function dist(a,b){return Math.hypot(a.x-b.x,a.y-b.y)}
-function nearRect(o,r,d=70){let qx=Math.max(r.x,Math.min(o.x,r.x+r.w)),qy=Math.max(r.y,Math.min(o.y,r.y+r.h));return Math.hypot(o.x-qx,o.y-qy)<d}
-function center(r){return{x:r.x+r.w/2,y:r.y+r.h/2}}
-
-const action=document.getElementById('action'),vehbtn=document.getElementById('vehicle');
-action.onclick=doAction;vehbtn.onclick=()=>{if(p.vehicle){p.x=p.vehicle.x+35;p.y=p.vehicle.y+35;p.vehicle=null;vehbtn.style.display='none';say('Du gikk ut av kjøretøyet.')}};
-
-function doAction(){
- if(p.vehicle){
-   if(p.vehicle===tractor && nearRect(tractor,field,80)){
-     if(save.crop==='empty'){save.crop='growing';save.cropDay=save.day;persist();say('🌱 Kornet er sådd. Det modnes på dag '+(save.day+2)+'.');return}
-     if(save.crop==='ready'){let bonus=save.day===save.cropDay+2?1.2:save.day===save.cropDay+3?1.1:1;let amount=Math.round(10*bonus);save.grain+=amount;save.crop='empty';persist();say('🌾 Høstet! '+amount+' sekker'+(bonus>1?' med tidligbonus.':'.'));return}
-     if(save.crop==='growing'){say('Kornet vokser fortsatt.');return}
-   }
-   say('Kjør nær jordet for å så eller høste.');return;
- }
- if(dist(p,tractor)<55){p.vehicle=tractor;vehbtn.style.display='block';say('🚜 Traktoren er startet.');return}
- if(dist(p,car)<55){p.vehicle=car;vehbtn.style.display='block';say('🚗 Bilen er startet.');return}
- if(dist(p,cat)<48){say('🐈 Prrrr... katten fikk kos. ❤️');return}
- if(nearRect(p,coop,55)){save.eggs+=3;persist();say('🥚 Du fant 3 egg i hønsehuset.');return}
- if(nearRect(p,market,75)){
-   let total=save.eggs*10+save.grain*100;
-   if(total){save.money+=total;save.eggs=0;save.grain=0;persist();say('🧺 Solgt varer for '+total+' kr.');}
-   else say('Du har ingen varer å selge.');
-   return
- }
- if(nearRect(p,house,65)){
-   save.day++; if(save.crop==='growing' && save.day>=save.cropDay+2) save.crop='ready';
-   startTime=performance.now(); p.x=350;p.y=410;persist();say('🌅 Dag '+save.day+'. God morgen!');
-   return
- }
- say('Ingenting å bruke her.');
-}
-
-function pointerPos(e,el){let r=el.getBoundingClientRect();return{x:e.clientX-r.left,y:e.clientY-r.top}}
-const j=document.getElementById('joy'),knob=document.getElementById('knob');
-j.addEventListener('pointerdown',e=>{joy.active=true;joy.id=e.pointerId;j.setPointerCapture(e.pointerId);moveJoy(e)});
-j.addEventListener('pointermove',e=>{if(joy.active&&e.pointerId===joy.id)moveJoy(e)});
-j.addEventListener('pointerup',endJoy);j.addEventListener('pointercancel',endJoy);
-function moveJoy(e){let q=pointerPos(e,j),dx=q.x-59,dy=q.y-59,m=Math.hypot(dx,dy),lim=38;if(m>lim){dx*=lim/m;dy*=lim/m}joy.dx=dx/lim;joy.dy=dy/lim;knob.style.transform=`translate(${dx}px,${dy}px)`}
-function endJoy(){joy.active=false;joy.dx=joy.dy=0;knob.style.transform='translate(0,0)'}
-
-function drawRect(r,color){x.fillStyle=color;x.fillRect(r.x,r.y,r.w,r.h)}
-function label(t,px,py,size=18){x.font=`700 ${size}px -apple-system`;x.textAlign='center';x.fillStyle='#172018';x.fillText(t,px,py)}
-function noiseDots(r,count,color,size=2){x.fillStyle=color;for(let i=0;i<count;i++){let px=r.x+((i*97+31)%Math.max(1,r.w)),py=r.y+((i*53+17)%Math.max(1,r.h));x.beginPath();x.arc(px,py,1+(i%size),0,7);x.fill()}}
-function drawRoad(r){drawRect(r,'#b89b72');noiseDots(r,Math.floor(r.w*r.h/1800),'#7e674a55',2);noiseDots(r,Math.floor(r.w*r.h/2600),'#e3c99a66',2);x.save();x.strokeStyle='#8c735655';x.lineWidth=3;if(r.w>r.h){for(let yy of [r.y+35,r.y+r.h-35]){x.beginPath();x.moveTo(r.x+10,yy);x.lineTo(r.x+r.w-10,yy);x.stroke()}}else{for(let xx of [r.x+35,r.x+r.w-35]){x.beginPath();x.moveTo(xx,r.y+10);x.lineTo(xx,r.y+r.h-10);x.stroke()}}x.restore()}
-function roof(rx,ry,rw,rh,col='#8d4937'){x.fillStyle=col;x.beginPath();x.moveTo(rx-12,ry+rh);x.lineTo(rx+rw/2,ry);x.lineTo(rx+rw+12,ry+rh);x.closePath();x.fill();x.strokeStyle='#5d352b';x.lineWidth=3;x.stroke()}
-function timberBuilding(r,wall,roofCol,name){x.fillStyle='#6d553e';x.fillRect(r.x+5,r.y+8,r.w,r.h);x.fillStyle=wall;x.fillRect(r.x,r.y,r.w,r.h);x.strokeStyle='#684a32';x.lineWidth=7;x.strokeRect(r.x+4,r.y+4,r.w-8,r.h-8);for(let xx=r.x+38;xx<r.x+r.w;xx+=42){x.beginPath();x.moveTo(xx,r.y+5);x.lineTo(xx,r.y+r.h-5);x.stroke()}x.lineWidth=4;x.beginPath();x.moveTo(r.x+5,r.y+5);x.lineTo(r.x+r.w-5,r.y+r.h-5);x.moveTo(r.x+r.w-5,r.y+5);x.lineTo(r.x+5,r.y+r.h-5);x.stroke();roof(r.x-8,r.y-42,r.w+16,48,roofCol);x.fillStyle='#4a3022';x.fillRect(r.x+r.w*.43,r.y+r.h*.48,r.w*.18,r.h*.52);label(name,r.x+r.w/2,r.y+r.h+24,16)}
-function barnBuilding(r){x.fillStyle='#a44f3f';x.fillRect(r.x,r.y,r.w,r.h);x.strokeStyle='#74392f';x.lineWidth=6;x.strokeRect(r.x+4,r.y+4,r.w-8,r.h-8);roof(r.x-10,r.y-50,r.w+20,56,'#754033');x.fillStyle='#59392a';x.fillRect(r.x+r.w*.34,r.y+r.h*.28,r.w*.32,r.h*.72);x.strokeStyle='#d3b37d';x.lineWidth=5;x.beginPath();x.moveTo(r.x+r.w*.34,r.y+r.h*.28);x.lineTo(r.x+r.w*.66,r.y+r.h);x.moveTo(r.x+r.w*.66,r.y+r.h*.28);x.lineTo(r.x+r.w*.34,r.y+r.h);x.stroke();label('LÅVE',r.x+r.w/2,r.y+r.h+24,16)}
-function worldDraw(){
- x.fillStyle='#76a85a';x.fillRect(0,0,WORLD.w,WORLD.h);
- // layered meadow texture
- for(let i=0;i<1250;i++){let gx=(i*173)%WORLD.w,gy=(i*97)%WORLD.h;x.fillStyle=i%5===0?'#d8cf6a55':i%3===0?'#3f7a3b44':'#f1e4a433';x.beginPath();x.arc(gx,gy,1+(i%3),0,7);x.fill()}
- // flower clusters
- for(let i=0;i<180;i++){let gx=(i*311+70)%WORLD.w,gy=(i*181+55)%WORLD.h;x.fillStyle=['#f5df55','#f4eee0','#d46b76','#7298d4'][i%4];x.beginPath();x.arc(gx,gy,2.2,0,7);x.fill()}
- // river with rocky banks and highlights
- x.fillStyle='#4e9fbd';x.fillRect(1370,520,115,980);
- for(let yy=535;yy<1490;yy+=34){x.strokeStyle='#bfe8e755';x.lineWidth=3;x.beginPath();x.moveTo(1382,yy);x.quadraticCurveTo(1427,yy-10,1472,yy);x.stroke()}
- for(let yy=535;yy<1490;yy+=55){for(let side of [1364,1488]){x.fillStyle='#74766b';x.beginPath();x.arc(side,yy,8+(yy%13),0,7);x.fill();x.fillStyle='#a7a08b';x.beginPath();x.arc(side-2,yy-3,4,0,7);x.fill()}}
- // textured gravel roads: stones, wheel tracks and soft grassy edges
- road.forEach(r=>{x.fillStyle='#6d9658';x.fillRect(r.x-9,r.y-9,r.w+18,r.h+18);drawRoad(r)});
- // fields
- drawRect(field,save.crop==='ready'?'#d9b34b':save.crop==='growing'?'#7fa83f':'#9b784c');
- x.strokeStyle='#5f4a2d66';x.lineWidth=2;for(let xx=field.x+18;xx<field.x+field.w;xx+=22){x.beginPath();x.moveTo(xx,field.y+8);x.lineTo(xx-40,field.y+field.h-8);x.stroke()}
- if(save.crop!=='empty'){for(let i=0;i<260;i++){let cx=field.x+12+(i*47)%(field.w-24),cy=field.y+12+(i*79)%(field.h-24);x.strokeStyle=save.crop==='ready'?'#f3d36a':'#b8cf63';x.lineWidth=2;x.beginPath();x.moveTo(cx,cy+6);x.lineTo(cx,cy-6);x.stroke()}}
- for(let yy=field.y+18;yy<field.y+field.h;yy+=28){x.strokeStyle='#ffffff22';x.beginPath();x.moveTo(field.x+10,yy);x.lineTo(field.x+field.w-10,yy);x.stroke()}
- label(save.crop==='empty'?'JORDET – klart for såing':save.crop==='growing'?'JORDET – kornet vokser':'JORDET – KORNET ER MODENT',field.x+field.w/2,field.y+field.h/2,18);
- // forest
- drawRect(forest,'#4e7e4a');
- for(let i=0;i<95;i++){let tx=forest.x+22+(i*137)%720,ty=forest.y+20+(i*83)%385;x.fillStyle='#493c28';x.fillRect(tx-2,ty+10,5,18);x.fillStyle=i%4===0?'#477a37':i%3===0?'#2f6937':'#245b32';x.beginPath();x.arc(tx,ty,13+(i%7),0,7);x.fill();x.fillStyle='#6e9b48aa';x.beginPath();x.arc(tx-5,ty-6,7+(i%4),0,7);x.fill()}
- label('SKOG',1600,300,24);
- // classic storybook farmstead: chunky silhouettes, timber framing and steep roofs
- x.fillStyle='#739c5c';x.beginPath();x.ellipse(410,395,270,205,0,0,7);x.fill();
- timberBuilding(house,'#ead8ae','#994f3c','HJEM');
- // farmyard props
- for(let i=0;i<8;i++){let bx=220+i*37,by=405+(i%2)*18;x.fillStyle='#8b653d';x.fillRect(bx,by,18,13);x.strokeStyle='#5b402a';x.strokeRect(bx,by,18,13)}
- x.fillStyle='#d9c27a';for(let i=0;i<5;i++){x.fillRect(455+i*14,395+(i%2)*9,12,12)}
- barnBuilding(barn);
- x.fillStyle='#d9bb72';x.fillRect(coop.x,coop.y,coop.w,coop.h);roof(coop.x-5,coop.y-28,coop.w+10,34,'#8d4937');x.fillStyle='#503726';x.fillRect(coop.x+38,coop.y+42,28,38);label('🐔',540,coop.y+34,23);
- timberBuilding(market,'#ead6ad','#a05b3f','TORGET 🧺');
- timberBuilding(shop,'#d5c39d','#765044','MASKINER');
- // small town with individual steep-roofed houses
- for(let i=0;i<5;i++){let rr={x:1650+i*105,y:1240,w:75,h:70};x.fillStyle=i%2?'#d19370':'#e0bd77';x.fillRect(rr.x,rr.y,rr.w,rr.h);roof(rr.x-4,rr.y-30,rr.w+8,34,i%2?'#874536':'#765044');x.fillStyle='#5c402d';x.fillRect(rr.x+29,rr.y+37,18,33)}
- label('SMÅBY',1830,1380,25);
- // vehicles
- drawVehicle(tractor,'#4f7c3a','🚜');drawVehicle(car,'#547ba0','🚗');
- // cat
- x.font='28px sans-serif';x.textAlign='center';x.fillText('🐈',cat.x,cat.y);
- // player
- let o=p.vehicle||p;x.fillStyle='#315b9b';x.beginPath();x.arc(o.x,o.y,p.vehicle?7:15,0,7);x.fill();
- if(!p.vehicle){x.fillStyle='#f0c8a0';x.beginPath();x.arc(p.x,p.y-15,9,0,7);x.fill();label(p.name,p.x,p.y-30,11)}
-}
-function drawVehicle(v,col,emoji){x.save();x.translate(v.x,v.y);x.rotate(v.a);x.fillStyle='#2e2b25';x.fillRect(-24,-20,13,7);x.fillRect(12,-20,13,7);x.fillRect(-24,13,13,7);x.fillRect(12,13,13,7);x.fillStyle=col;x.fillRect(-25,-16,50,32);x.fillStyle='#d8c48b';x.fillRect(-6,-13,20,15);x.font='18px sans-serif';x.textAlign='center';x.fillText(emoji,0,8);x.restore()}
-function update(dt){
- let o=p.vehicle||p, sp=p.vehicle?p.vehicle.speed:p.speed;
- let m=Math.hypot(joy.dx,joy.dy);
- if(m>.05){o.x+=joy.dx*sp*dt;o.y+=joy.dy*sp*dt;if(p.vehicle)o.a=Math.atan2(joy.dy,joy.dx)}
- o.x=Math.max(20,Math.min(WORLD.w-20,o.x));o.y=Math.max(20,Math.min(WORLD.h-20,o.y));
- if(p.vehicle){p.x=o.x;p.y=o.y}
- cat.t+=dt;if(cat.t>1.2){cat.t=0;cat.x+=Math.random()*50-25;cat.y+=Math.random()*50-25;cat.x=Math.max(250,Math.min(600,cat.x));cat.y=Math.max(220,Math.min(600,cat.y))}
- if(save.crop==='growing' && save.day>=save.cropDay+2)save.crop='ready';
- let elapsed=(performance.now()-startTime)%dayLength, frac=elapsed/dayLength;
- let mins=7*60+Math.floor(frac*16*60),hh=Math.floor(mins/60)%24,mm=mins%60;
- document.getElementById('day').textContent=`Dag ${save.day} • ${String(hh).padStart(2,'0')}:${String(mm).padStart(2,'0')}`;
- document.getElementById('money').textContent=`💰 ${save.money.toLocaleString('nb-NO')} kr`;
- document.getElementById('inv').textContent=`🥚 ${save.eggs} • 🌾 ${save.grain}`;
- action.textContent=p.vehicle?'BRUK':dist(p,tractor)<55||dist(p,car)<55?'KJØR':dist(p,cat)<48?'KOS':nearRect(p,coop,55)?'HENT':nearRect(p,market,75)?'SELG':nearRect(p,house,65)?'SOV':'BRUK';
-}
-function render(){
- let o=p.vehicle||p,camX=Math.max(0,Math.min(WORLD.w-W,o.x-W/2)),camY=Math.max(0,Math.min(WORLD.h-H,o.y-H/2));
- x.clearRect(0,0,W,H);x.save();x.translate(-camX,-camY);worldDraw();x.restore();
- // dusk overlay
- let elapsed=(performance.now()-startTime)%dayLength/dayLength;if(elapsed>.78){x.fillStyle=`rgba(20,25,55,${Math.min(.48,(elapsed-.78)*2.2)})`;x.fillRect(0,0,W,H)}
-}
-function loop(t){let dt=Math.min(.033,(t-last)/1000);last=t;if(started)update(dt);render();requestAnimationFrame(loop)}requestAnimationFrame(loop);
-})();
-</script>
-</body>
-</html>
+const c=document.getElementById('g'),q=c.getContext('2d');let W,H,dpr,camX=0,camY=0,zoom=1;
+function rs(){W=innerWidth;H=innerHeight;dpr=Math.min(devicePixelRatio||1,2);c.width=W*dpr;c.height=H*dpr;q.setTransform(dpr,0,0,dpr,0,0)}addEventListener('resize',rs);rs();
+const TW=76,TH=38,OX=1100,OY=90;function iso(a,b,z=0){return{x:OX+(a-b)*TW/2,y:OY+(a+b)*TH/2-z}}
+function poly(p,fill,stroke='#0002'){q.beginPath();q.moveTo(p[0].x,p[0].y);for(let i=1;i<p.length;i++)q.lineTo(p[i].x,p[i].y);q.closePath();q.fillStyle=fill;q.fill();if(stroke){q.strokeStyle=stroke;q.lineWidth=1;q.stroke()}}
+function tile(a,b,col){let p=iso(a,b),u=TW/2,v=TH/2;poly([{x:p.x,y:p.y-v},{x:p.x+u,y:p.y},{x:p.x,y:p.y+v},{x:p.x-u,y:p.y}],col)}
+function rnd(a,b){let n=Math.sin(a*127.1+b*311.7)*43758.5453;return n-Math.floor(n)}
+function tree(a,b,s=.9){let p=iso(a,b);q.fillStyle='#49351f';q.fillRect(p.x-3*s,p.y-3*s,6*s,23*s);let cs=['#1f572e','#2d6a34','#3e7b3b'];for(let i=0;i<3;i++){q.fillStyle=cs[i];q.beginPath();q.arc(p.x+(i-1)*7*s,p.y-(13+i*7)*s,15*s,0,7);q.fill()}q.fillStyle='#79a54b88';q.beginPath();q.arc(p.x-7*s,p.y-30*s,8*s,0,7);q.fill()}
+function rock(a,b,s=1){let p=iso(a,b);poly([{x:p.x-13*s,y:p.y},{x:p.x-7*s,y:p.y-15*s},{x:p.x+4*s,y:p.y-22*s},{x:p.x+15*s,y:p.y-5*s},{x:p.x+9*s,y:p.y+5*s}], '#7d7b70');poly([{x:p.x-7*s,y:p.y-15*s},{x:p.x+4*s,y:p.y-22*s},{x:p.x+2*s,y:p.y-5*s}], '#b4ad96',null)}
+function house(a,b,scale=1,red='#a74f35'){let p=iso(a,b),w=72*scale,h=46*scale,z=50*scale;q.fillStyle='#ead9ae';q.fillRect(p.x-w/2,p.y-z,w,h);q.strokeStyle='#62452c';q.lineWidth=5*scale;q.strokeRect(p.x-w/2+2,p.y-z+2,w-4,h-4);q.lineWidth=3*scale;for(let xx=-w/2+18;xx<w/2;xx+=22){q.beginPath();q.moveTo(p.x+xx,p.y-z);q.lineTo(p.x+xx,p.y-z+h);q.stroke()}poly([{x:p.x-w/2-8,y:p.y-z+2},{x:p.x,y:p.y-z-38*scale},{x:p.x+w/2+8,y:p.y-z+2}],red,'#5b3428');q.fillStyle='#51331f';q.fillRect(p.x-9*scale,p.y-z+21*scale,18*scale,25*scale);q.fillStyle='#88b6bd';q.fillRect(p.x-w/2+10,p.y-z+14,12,12)}
+function barn(a,b){let p=iso(a,b);q.fillStyle='#a84e38';q.fillRect(p.x-48,p.y-62,96,60);q.strokeStyle='#713726';q.lineWidth=5;q.strokeRect(p.x-45,p.y-59,90,56);poly([{x:p.x-57,y:p.y-59},{x:p.x,y:p.y-108},{x:p.x+57,y:p.y-59}],'#7e3e30','#553025');q.fillStyle='#4d3020';q.fillRect(p.x-17,p.y-38,34,36);q.strokeStyle='#d4ad72';q.lineWidth=3;q.beginPath();q.moveTo(p.x-17,p.y-38);q.lineTo(p.x+17,p.y-2);q.moveTo(p.x+17,p.y-38);q.lineTo(p.x-17,p.y-2);q.stroke()}
+function field(a,b,w,h){for(let i=0;i<w;i++)for(let j=0;j<h;j++){tile(a+i,b+j,(i+j)%2?'#d7ad3d':'#e3bd4a');let p=iso(a+i,b+j);for(let k=0;k<7;k++){let xx=p.x-25+k*8,yy=p.y-8+((k*3)%9);q.strokeStyle='#f2d66a';q.lineWidth=2;q.beginPath();q.moveTo(xx,yy+12);q.lineTo(xx,yy-5);q.stroke()}}}
+function road(a,b,len,dir){for(let i=0;i<len;i++){let aa=a+(dir===0?i:0),bb=b+(dir===1?i:0);tile(aa,bb,'#b99a6a');let p=iso(aa,bb);q.fillStyle='#755f4055';for(let k=0;k<5;k++){q.beginPath();q.arc(p.x-20+k*10,p.y+(k%2?3:-3),1.5,0,7);q.fill()}}}
+function draw(){q.setTransform(dpr,0,0,dpr,0,0);let g=q.createLinearGradient(0,0,0,H);g.addColorStop(0,'#9bc7d7');g.addColorStop(.32,'#789d55');g.addColorStop(1,'#426a3c');q.fillStyle=g;q.fillRect(0,0,W,H);q.save();q.translate(W/2+camX,H*.12+camY);q.scale(zoom,zoom);q.translate(-OX,-OY);
+for(let a=0;a<29;a++)for(let b=0;b<22;b++){let water=(a>22&&b>11)||(a>25&&b>8);tile(a,b,water?((a+b)%2?'#3d91ad':'#4ba0b8'):((a+b)%3?'#79a956':'#72a050'))}
+for(let a=23;a<29;a++)for(let b=11;b<22;b++){let p=iso(a,b);q.strokeStyle='#b9e6e566';q.beginPath();q.moveTo(p.x-24,p.y);q.quadraticCurveTo(p.x,p.y-6,p.x+23,p.y);q.stroke()}
+road(4,8,15,0);road(9,3,14,1);road(3,13,17,0);field(14,4,5,5);
+for(let i=0;i<75;i++){let a=1+rnd(i,2)*27,b=1+rnd(i,9)*20;if(!((a>12&&a<21&&b>2&&b<15)||(a>22&&b>10)))tree(a,b,.65+rnd(i,5)*.45)}
+for(let i=0;i<28;i++)rock(1+rnd(i,4)*27,1+rnd(i,7)*20,.6+rnd(i,3)*.6);
+house(9,8,1.15);barn(12,6);house(8,12,.8,'#8d4937');house(16,12,.8,'#9c5539');house(5,10,.75,'#704434');
+let p=iso(18,8);q.fillStyle='#eee1bb';q.fillRect(p.x-25,p.y-75,50,70);poly([{x:p.x-31,y:p.y-72},{x:p.x,y:p.y-103},{x:p.x+31,y:p.y-72}],'#7a4734');q.fillStyle='#6c5135';q.fillRect(p.x-4,p.y-128,8,62);q.strokeStyle='#e2d0a6';q.lineWidth=5;for(let ang=0;ang<6.2;ang+=Math.PI/2){q.beginPath();q.moveTo(p.x,p.y-100);q.lineTo(p.x+Math.cos(ang)*42,p.y-100+Math.sin(ang)*42);q.stroke()}
+for(let i=0;i<22;i++){let a=5+rnd(i,1)*15,b=5+rnd(i,6)*10,p=iso(a,b);q.fillStyle='#d8b07a';q.beginPath();q.arc(p.x,p.y-13,4,0,7);q.fill();q.fillStyle=i%2?'#315f8b':'#8c4937';q.fillRect(p.x-4,p.y-9,8,12)}
+q.restore();requestAnimationFrame(draw)}requestAnimationFrame(draw);
+let pts=new Map(),lastDist=0,lastMid=null;c.onpointerdown=e=>{c.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY})};c.onpointermove=e=>{if(!pts.has(e.pointerId))return;let old=pts.get(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});let ar=[...pts.values()];if(ar.length===1){camX+=e.clientX-old.x;camY+=e.clientY-old.y}else{let d=Math.hypot(ar[0].x-ar[1].x,ar[0].y-ar[1].y);if(lastDist)zoom=Math.max(.55,Math.min(1.8,zoom*d/lastDist));lastDist=d}};function up(e){pts.delete(e.pointerId);lastDist=0}c.onpointerup=up;c.onpointercancel=up;
+</script></body></html>

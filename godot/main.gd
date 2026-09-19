@@ -41,6 +41,8 @@ var camera: Camera2D
 var status_label: Label
 var help_label: Label
 var connection_label: Label
+var tool_button: Button
+var tool_cycle := ["seeder", "combine", "trailer", "plow"]
 
 func _ready() -> void:
 	_setup_input()
@@ -93,6 +95,41 @@ func _make_ui() -> void:
 	connection_label.position = Vector2(950, 16)
 	connection_label.add_theme_font_size_override("font_size", 16)
 	layer.add_child(connection_label)
+	_add_touch_button(layer, "HANDLING", Vector2(-170, -145), Vector2(150, 58), _interact)
+	_add_touch_button(layer, "BRUK", Vector2(-330, -145), Vector2(140, 58), _use_tool)
+	_add_touch_button(layer, "GÅ UT", Vector2(-330, -215), Vector2(140, 52), _touch_exit)
+	tool_button = _add_touch_button(layer, "REDSKAP", Vector2(-170, -215), Vector2(150, 52), _cycle_tool)
+
+func _add_touch_button(layer: CanvasLayer, title: String, bottom_right_offset: Vector2, size: Vector2, callback: Callable) -> Button:
+	var button := Button.new()
+	button.text = title
+	button.set_anchors_preset(Control.PRESET_BOTTOM_RIGHT)
+	button.position = bottom_right_offset
+	button.size = size
+	button.add_theme_font_size_override("font_size", 17)
+	button.modulate = Color(1, 1, 1, 0.9)
+	button.pressed.connect(callback)
+	layer.add_child(button)
+	return button
+
+func _touch_exit() -> void:
+	if driving:
+		_exit_vehicle()
+	else:
+		_set_message("Du er allerede til fots")
+
+func _cycle_tool() -> void:
+	var current := tool_cycle.find(selected_tool)
+	selected_tool = tool_cycle[(current + 1) % tool_cycle.size()]
+	_set_message("Redskap valgt: %s" % _tool_name(selected_tool))
+
+func _tool_name(tool: String) -> String:
+	match tool:
+		"seeder": return "såmaskin"
+		"combine": return "tresker"
+		"trailer": return "tilhenger"
+		"plow": return "plog"
+	return tool
 
 func _process(delta: float) -> void:
 	if field_state == "growing":
@@ -271,6 +308,8 @@ func _set_message(text: String) -> void:
 func _update_ui() -> void:
 	var mode := "traktor" if driving else "til fots"
 	status_label.text = "%s\n%s | Egg: %d | Korn: %d | Penger: %d kr\nJorde: %s | Redskap: %s" % [action_message, mode, eggs, grain, money, field_state, selected_tool]
+	if tool_button:
+		tool_button.text = "REDSKAP: %s" % _tool_name(selected_tool).to_upper()
 	help_label.text = "WASD/piltaster eller trykk i verden: gå/kjør   E: interaksjon   SPACE: bruk utstyr   1/2/3/4: så/tresk/tilhenger/plog   F: gå ut   H/J: host/join"
 	var peer_text := "Offline – lokal prototype"
 	if multiplayer.has_multiplayer_peer():
